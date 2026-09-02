@@ -45,4 +45,42 @@ print("Days 100–129 [2018, 2019]:\n", window_30_days)
 print("Transposed window shape:", window_30_days_transposed.shape)
 print("Transposed window [year, day]:\n", window_30_days_transposed)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+# Part D - Boolean filtering and the flattening pitfall
+# Select column 1 as a 1D array, then compare every 2019 value with its mean.
+mean_2019 = np.mean(tfl_1819[:, 1])
+above_mean_2019_mask = tfl_1819[:, 1] > mean_2019
+above_mean_2019_hires = tfl_1819[:, 1][above_mean_2019_mask]
+
+print("\nPART D - Boolean filtering")
+print("2019 mean:", mean_2019)
+print("Boolean mask:", above_mean_2019_mask)
+print("Boolean mask shape:", above_mean_2019_mask.shape)
+print("Number of True values:", np.count_nonzero(above_mean_2019_mask))
+print("Filtered 2019 hires:", above_mean_2019_hires)
+print("Original tfl_1819 shape:", tfl_1819.shape)
+print("2019 column before filtering shape:", tfl_1819[:, 1].shape)
+print("Filtered result shape:", above_mean_2019_hires.shape)
+print(
+    "Boolean indexing packs the selected values into a flattened 1D array, "
+    "so the result has shape (number of True values,) rather than (365, 2)."
+)
+
+
+# Part E - Vectorized arithmetic and broadcasting/shape compatibility
+# Both column slices have shape (365,), so NumPy subtracts matching daily values.
+diff = tfl_1819[:, 1] - tfl_1819[:, 0]
+
+print("\nPART E - Daily year-over-year difference")
+print("2019 column shape:", tfl_1819[:, 1].shape)
+print("2018 column shape:", tfl_1819[:, 0].shape)
+print("diff shape:", diff.shape)
+print("Daily differences (2019 - 2018):", diff)
+print("Mean difference:", diff.mean())
+print("Maximum difference:", diff.max())
+print("Minimum difference:", diff.min())
+print(
+    "This is vectorized because one subtraction operates on all 365 matching "
+    "elements. The two arrays have compatible identical shapes, so no manual "
+    "loop is needed."
+)
