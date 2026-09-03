@@ -2,12 +2,11 @@ import numpy as np
 
 
 # Part A — Load and validate numeric import
-# skiprows=1 skips the header row; usecols=1 selects the hires column.
 hires_2018 = np.loadtxt(
-    "tfl-daily-cycle-hires-2018.csv", delimiter=",", skiprows=1, usecols=1
+    "dataset/tfl-daily-cycle-hires-2018.csv", delimiter=",", skiprows=1, usecols=1
 )
 hires_2019 = np.loadtxt(
-    "tfl-daily-cycle-hires-2019.csv", delimiter=",", skiprows=1, usecols=1
+    "dataset/tfl-daily-cycle-hires-2019.csv", delimiter=",", skiprows=1, usecols=1
 )
 
 print("PART A — Load and reshape")
@@ -26,7 +25,6 @@ print("2019 reshaped to:", hires_2019.shape)
 
 
 # Part B — Combine years
-# axis=1 joins the matching daily rows as columns: 2018 in column 0, 2019 in column 1.
 tfl_1819 = np.concatenate((hires_2018, hires_2019), axis=1)
 
 print("\nPART B — Combine years")
@@ -35,7 +33,6 @@ print("First five rows [2018, 2019]:\n", tfl_1819[:5])
 
 
 # Part C — Slice a 30-day window and transpose it
-# Day 100 is at index 99, and slice endpoint 129 is excluded, giving days 100–129.
 window_30_days = tfl_1819[99:129, :]
 window_30_days_transposed = window_30_days.T
 
@@ -47,7 +44,6 @@ print("Transposed window [year, day]:\n", window_30_days_transposed)
 
 
 # Part D - Boolean filtering and the flattening pitfall
-# Select column 1 as a 1D array, then compare every 2019 value with its mean.
 mean_2019 = np.mean(tfl_1819[:, 1])
 above_mean_2019_mask = tfl_1819[:, 1] > mean_2019
 above_mean_2019_hires = tfl_1819[:, 1][above_mean_2019_mask]
@@ -68,7 +64,6 @@ print(
 
 
 # Part E - Vectorized arithmetic and broadcasting/shape compatibility
-# Both column slices have shape (365,), so NumPy subtracts matching daily values.
 diff = tfl_1819[:, 1] - tfl_1819[:, 0]
 
 print("\nPART E - Daily year-over-year difference")
@@ -84,3 +79,55 @@ print(
     "elements. The two arrays have compatible identical shapes, so no manual "
     "loop is needed."
 )
+
+# Part F - Summary analytics + export results
+total_hires = np.sum(tfl_1819, axis=0)
+average_daily_hires = np.mean(tfl_1819, axis=0)
+maximum_daily_hires = np.max(tfl_1819, axis=0)
+
+print("\nPART F - Summary analytics")
+print("Total hires [2018, 2019]:", total_hires)
+print("Average daily hires [2018, 2019]:", average_daily_hires)
+print("Maximum daily hires [2018, 2019]:", maximum_daily_hires)
+
+# Export the combined 2018/2019 data
+np.savetxt(
+    "dataset/tfl_1819.csv",
+    tfl_1819,
+    delimiter=","
+)
+
+# Export the daily differences
+np.savetxt(
+    "dataset/diff.csv",
+    diff,
+    delimiter=","
+)
+
+print("Exported tfl_1819 to dataset/tfl_1819.csv")
+print("Exported diff to dataset/diff.csv")
+
+# Part G — Creation/manipulation check
+temperatures = np.loadtxt(
+    "dataset/warehouse_temperatures_jan.csv",
+    delimiter=".",
+    skiprows=1,
+    usecols=1
+)
+
+temperature_count = np.count_nonzero(temperatures)
+temperature_min = np.min(temperatures)
+temperature_max = np.max(temperatures)
+temperature_mean = np.mean(temperatures)
+
+sorted_temperatures = np.sort(temperatures)
+temperatures_matrix = temperatures.reshape(31, 1)
+
+print("\nPART G — Temperature check")
+print("Temperature count:", temperature_count)
+print("Minimum temperature:", temperature_min)
+print("Maximum temperature:", temperature_max)
+print("Mean temperature:", temperature_mean)
+print("Sorted temperatures:", sorted_temperatures)
+print("Reshaped temperatures shape:", temperatures_matrix.shape)
+
